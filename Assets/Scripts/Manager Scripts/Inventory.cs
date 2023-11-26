@@ -23,8 +23,23 @@ public class Inventory : MonoBehaviour
     private void OnEnable()
     {
         EventManager.Instance.OnPlayerPickupedItem += EventManager_Instance_OnPlayerPickupedItem;
+        EventManager.Instance.OnPlayerTryOpenDoor += EventManager_Instance_OnPlayerTryOpenDoor;
         EventManager.Instance.OnInventoryOpened += EventManager_Instance_OnInventoryOpened;
         EventManager.Instance.OninventoryClosed += EventManager_Instance_OninventoryClosed;
+    }
+
+    private bool EventManager_Instance_OnPlayerTryOpenDoor(GatherableSO validKey)
+    {
+        if(inventoryItems.Contains(validKey))
+        {
+            inventoryItems.Remove(validKey);
+            EventManager.Instance.InvokeInventoryItemsModified();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void EventManager_Instance_OnInventoryOpened(object sender, EventArgs e)
@@ -40,6 +55,7 @@ public class Inventory : MonoBehaviour
     private void OnDisable()
     {
         EventManager.Instance.OnPlayerPickupedItem -= EventManager_Instance_OnPlayerPickupedItem;
+        EventManager.Instance.OnPlayerTryOpenDoor -= EventManager_Instance_OnPlayerTryOpenDoor;
         EventManager.Instance.OnInventoryOpened -= EventManager_Instance_OnInventoryOpened;
         EventManager.Instance.OninventoryClosed -= EventManager_Instance_OninventoryClosed;
     }

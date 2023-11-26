@@ -10,6 +10,7 @@ public class EventManager : MonoBehaviour
     public event Action<GatherableSO> OnSlotItemButtonPerformed;
 
     public event Predicate<GatherableSO> OnPlayerPickupedItem;
+    public event Predicate<GatherableSO> OnPlayerTryOpenDoor;
 
     public event EventHandler OnSelectedItemChanged;
 
@@ -25,6 +26,7 @@ public class EventManager : MonoBehaviour
     public event EventHandler OnStaminaFinished;
     public event EventHandler OnStaminaTopUpped;
 
+    
     private void Awake()
     {
         Instance = this;
@@ -33,6 +35,11 @@ public class EventManager : MonoBehaviour
     public bool InvokeTryPickupedItem(GatherableSO pickupItem)
     {
         return OnPlayerPickupedItem?.Invoke(pickupItem) == true;
+    }
+
+    public bool InvokeTryOpenDoor(GatherableSO validKeySO)
+    {
+        return OnPlayerTryOpenDoor?.Invoke(validKeySO) == true;
     }
 
     public void InvokeSelectedItemChanged()
@@ -79,4 +86,6 @@ public class EventManager : MonoBehaviour
     {
         OnStaminaTopUpped?.Invoke(this, EventArgs.Empty);
     }
+
+   
 }

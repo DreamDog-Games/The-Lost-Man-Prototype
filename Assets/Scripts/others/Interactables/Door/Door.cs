@@ -40,14 +40,9 @@ public class Door : MonoBehaviour
         KeyDoor,
         GhostDoor
     }
-    private void Awake()
-    {
-        SetActiveSelectedVisual(false);
-    }
-
     public void Interact()
     {
-       DoorToggle();  
+        DoorToggle();
     }
 
     private void DoorToggle()
@@ -58,9 +53,15 @@ public class Door : MonoBehaviour
         }
         else if(doorType == DoorType.KeyDoor)
         {
-            if(HasValidDoorKeyInInventory() || isGotKey)
+            CheckPlayerHasKey();
+
+            if(isGotKey)
             {
                 isOpenedDoor = !isOpenedDoor;
+            }
+            else
+            {
+                Debug.Log("No key You Have");
             }
         }
        
@@ -86,18 +87,9 @@ public class Door : MonoBehaviour
             case DoorType.KeyDoor:
                 if (isOpenedDoor)
                 {
-                    // open Door
-                    if(HasValidDoorKeyInInventory() || isGotKey)
-                    {
-                        UseKey();
-                        doorHinge.DOLocalRotate(new Vector3(0, targetOpenAngle, 0), doorOpenDuration).SetEase(easeTypeOpen);
-                        isGotKey = true;
-                        Debug.Log("Door Opned");
-                    }
-                    else
-                    {
-                        Debug.Log("Need key");
-                    }
+                     // open Door
+                     doorHinge.DOLocalRotate(new Vector3(0, targetOpenAngle, 0), doorOpenDuration).SetEase(easeTypeOpen);
+                     Debug.Log("Door Opned");
                 }
                 else 
                 {
@@ -132,7 +124,6 @@ public class Door : MonoBehaviour
         {
             DoTrapPlayer();
         }
-            
     }
 
     private void DoTrapPlayer()
@@ -180,34 +171,11 @@ public class Door : MonoBehaviour
         });
     }
 
-    private bool HasValidDoorKeyInInventory()
+    private void CheckPlayerHasKey()
     {
-        GatherableSO[] gatherableSOs = InventoryTest.Instance.GetGatheredObjectList().ToArray();
-        var hasKey = gatherableSOs.Any(s => s.gatherableObjectName == validKeySO.gatherableObjectName);
-        if (hasKey)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+        if (isGotKey) return;
 
-    private void UseKey()
-    {
-        GatherableSO[] gatherableSOs = InventoryTest.Instance.GetGatheredObjectList().ToArray();
-        var key = gatherableSOs.Where(s => s.gatherableObjectName == validKeySO.gatherableObjectName).FirstOrDefault(); ;
-        InventoryTest.Instance.RemoveObjectFromInventory(key);  // remove key from inventory
-    }
-
-    public void SetActiveSelectedVisual(bool activeStatus)
-    {
-        Outline[] outlines = GetComponentsInChildren<Outline>();
-        foreach (Outline outline in outlines)
-        {
-            outline.enabled = activeStatus;
-        }
+        isGotKey = EventManager.Instance.InvokeTryOpenDoor(validKeySO);
     }
 
     public Transform GetHandTargetTransform()
